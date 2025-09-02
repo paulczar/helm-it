@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helm Template Service</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Helm Template Service</h1>
+        <form id="template-form">
+            <div class="form-group">
+                <label for="chart-url">Chart URL (.tgz)</label>
+                <input type="text" id="chart-url" name="chart-url" required>
+            </div>
+            <div class="form-group">
+                <label for="values">Values (YAML)</label>
+                <textarea id="values" name="values" rows="10"></textarea>
+            </div>
+            <button type="submit">Template</button>
+        </form>
+        <div class="output-container">
+            <h2>Rendered Output</h2>
+            <div class="output-actions">
+                <button id="copy-button">Copy</button>
+                <button id="download-button">Download</button>
+            </div>
+            <pre><code id="output" class="yaml"></code></pre>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
