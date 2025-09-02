@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const downloadButton = document.getElementById('download-button');
 
+   const chartUrlInput = document.getElementById('chart-url');
+   const valuesTextarea = document.getElementById('values');
+
+   chartUrlInput.addEventListener('input', () => {
+       valuesTextarea.value = '';
+   });
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
