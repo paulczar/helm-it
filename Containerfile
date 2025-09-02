@@ -12,7 +12,7 @@ RUN go mod download
 COPY . .
 
 # Build the application, statically linking it to ensure it runs on a minimal base image
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o /tmp/helm-template-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -buildvcs=false -tags embed -a -o /tmp/helm-template-service .
 
 # Stage 2: Create the final, minimal image
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
