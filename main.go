@@ -173,6 +173,11 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	templateChartAndRender(w, r, payload, true) // true for JSON output
+}
+
+// templateChartAndRender handles the core logic of templating a Helm chart.
+func templateChartAndRender(w http.ResponseWriter, r *http.Request, payload RequestPayload, renderJSON bool) {
 	// Download the Helm chart.
 	tempFilePath, err := downloadChart(payload.ChartURL)
 	if err != nil {
@@ -190,7 +195,6 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 	defer os.RemoveAll(extractDir)
 
 	// Find the actual chart directory inside the extracted folder.
-	// A Helm chart tarball typically has one top-level directory.
 	entries, err := os.ReadDir(extractDir)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading extracted directory: %s", err), http.StatusInternalServerError)
@@ -225,7 +229,7 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 		valuesContent = string(valuesBytes)
 	}
 
-	// Load the chart from the extracted directory using os.DirFS.
+	// Load the chart from the extracted directory.
 	ctx := context.Background()
 	chartFS := os.DirFS(chartRootDir)
 	loadedChart, err := helm.LoadChart(ctx, chartFS)
@@ -237,8 +241,8 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 	// Define the configuration for templating.
 	config := helm.TemplateConfig{
 		Chart:       loadedChart,
-		ReleaseName: "my-release", // A default release name.
-		Namespace:   "default",    // A default namespace.
+		ReleaseName: "my-release",
+		Namespace:   "default",
 		Values:      payload.Values,
 	}
 
@@ -249,32 +253,42 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create the response payload.
-	response := ResponsePayload{
-		Templates:   result,
-		Values:      valuesContent,
-		ValuesExist: valuesExist,
+	if renderJSON {
+		response := ResponsePayload{
+			Templates:   result,
+			Values:      valuesContent,
+			ValuesExist: valuesExist,
+		}
+		jsonResponse, err := json.Marshal(response)
+		if err != nil {
+			http.Error(w, "Error creating JSON response", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
+	} else {
+		w.Header().Set("Content-Type", "text/plain")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(result))
 	}
+}
 
-	// Marshal the response to JSON.
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		http.Error(w, "Error creating JSON response", http.StatusInternalServerError)
-		return
-	}
-
-	// Write the JSON response.
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		log.Printf("Error writing response: %v", err)
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	chartURL := r.URL.Query().Get("c")
+	if chartURL != "" {
+		// If 'c' param exists, treat it as a raw template request.
+		payload := RequestPayload{ChartURL: chartURL}
+		templateChartAndRender(w, r, payload, false) // false for raw output
+	} else {
+		// Otherwise, serve the static files.
+		fileServer().ServeHTTP(w, r)
 	}
 }
 
 func main() {
 	// Define the HTTP handler.
-	http.Handle("/", fileServer())
+	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/template", templateHandler)
 
 	// Start the server on port 8080.

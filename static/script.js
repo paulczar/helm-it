@@ -4,12 +4,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const downloadButton = document.getElementById('download-button');
 
-   const chartUrlInput = document.getElementById('chart-url');
-   const valuesTextarea = document.getElementById('values');
+    const chartUrlInput = document.getElementById('chart-url');
+    const valuesTextarea = document.getElementById('values');
+    const curlCommandElement = document.getElementById('curl-command');
 
-   chartUrlInput.addEventListener('input', () => {
-       valuesTextarea.value = '';
-   });
+    const updateCurlCommand = () => {
+        const chartUrl = chartUrlInput.value;
+        if (chartUrl) {
+            const encodedChartUrl = encodeURIComponent(chartUrl);
+            const curlCommand = `curl "${window.location.origin}/?c=${encodedChartUrl}"`;
+            curlCommandElement.textContent = curlCommand;
+        } else {
+            curlCommandElement.textContent = '';
+        }
+    };
+
+    chartUrlInput.addEventListener('input', () => {
+        valuesTextarea.value = '';
+        updateCurlCommand();
+    });
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -89,4 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     });
+
+    // Initial call to set the curl command on page load
+    updateCurlCommand();
 });
