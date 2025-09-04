@@ -64,3 +64,10 @@ button:hover {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
+.logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 150px;
+    margin-bottom: 20px;
+}

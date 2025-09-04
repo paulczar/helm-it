@@ -1,4 +1,5 @@
 # Helm Template Service
+![Helm Template Service Logo](logo/helmit-readme.png)
 
 This service provides a web-based API and user interface to render Helm charts without requiring the client to have Helm installed locally. It is a stateless service that, given a URL to a Helm chart and a set of values, returns the rendered Kubernetes manifests.
 

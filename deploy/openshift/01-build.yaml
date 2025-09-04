@@ -1,0 +1,36 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: helm-template-service
+spec:
+  lookupPolicy:
+    local: true
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: helm-template-service
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: helm-template-service:latest
+  source:
+    # To build from a remote git repository, uncomment the following lines
+    # and replace the URI with your repository.
+    git:
+      uri: "https://github.com/user/helm-template-service.git"
+    type: Git
+    # To build from local source, comment out the git source above and
+    # uncomment the following lines. Then run:
+    # oc start-build helm-template-service --from-dir=. --follow
+    #
+    # type: Binary
+    # binary: {}
+  strategy:
+    golang: {}
+    type: Source
+  triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange

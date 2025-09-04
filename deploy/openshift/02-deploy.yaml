@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helm-template-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helm-template-service
+  template:
+    metadata:
+      labels:
+        app: helm-template-service
+    spec:
+      containers:
+        - name: helm-template-service
+          image: helm-template-service:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helm-template-service
+spec:
+  selector:
+    app: helm-template-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
