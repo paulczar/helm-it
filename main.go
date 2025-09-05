@@ -173,7 +173,14 @@ func templateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateChartAndRender(w, r, payload, true) // true for JSON output
+	// Check for the 'raw' query parameter to determine the output format.
+	rawQuery := r.URL.Query().Get("raw")
+	renderJSON := true
+	if rawQuery == "true" {
+		renderJSON = false
+	}
+
+	templateChartAndRender(w, r, payload, renderJSON)
 }
 
 // templateChartAndRender handles the core logic of templating a Helm chart.

@@ -41,6 +41,8 @@ After submitting the form, the rendered output will be displayed below.
 
 You can also use the service programmatically by sending a `POST` request to the `/template` endpoint.
 
+### JSON Output
+
 ```bash
 curl -X POST http://localhost:8080/template \
 -H "Content-Type: application/json" \
@@ -50,6 +52,27 @@ curl -X POST http://localhost:8080/template \
     "replicaCount": 2
   }
 }'
+```
+
+### Raw Output
+
+To get the raw Helm template output, you can use the `raw=true` query parameter. This is available for both `GET` and `POST` requests.
+
+```bash
+curl -X POST "http://localhost:8080/template?raw=true" \
+-H "Content-Type: application/json" \
+-d '{
+  "chartUrl": "https://charts.bitnami.com/bitnami/apache-8.9.1.tgz",
+  "values": {
+    "replicaCount": 2
+  }
+}'
+```
+
+You can also use a `GET` request:
+
+```bash
+curl "http://localhost:8080/template?chartUrl=https://charts.bitnami.com/bitnami/apache-8.9.1.tgz&raw=true"
 ```
 
 ## Building with Podman
